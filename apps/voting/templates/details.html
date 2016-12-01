@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- {{ vote_records }} -->
+
+<!-- {% now 'Y' %} -->
+
+<!-- {{ vote_records }} -->
+
+<!-- {% for key, value in vote_records.items %}
+{{ value.values|join:", " }}
+{% endfor %} -->
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-6">
+			<div id="success-message" class="alert alert-success hide" role="alert">
+				<p>Success!</p>
+			</div>
+			<div id="danger-message" class="alert alert-danger hide" role="alert">
+				<p>Sorry you already gave a vote</p>
+			</div>
+			<div id="warning-message" class="alert alert-warning hide" role="alert">
+				<p>Please login to vote</p>
+			</div>
+			<div id="select-choice-message" class="alert alert-warning hide" role="alert">
+				<p>Please select an option first</p>
+			</div>
+			<form action="post" class="poll-form" id="{{ question.id }}">
+				{% csrf_token %}
+				<div class="form-group">
+					<h3>{{ question.question_text }}</h3>
+				</div>
+				{% for choice in choices %}
+				<div class="form-group">
+					<label><input type="radio" name="poll-choice" value="{{ choice.id }}"> {{ choice.choice_text }}</label>
+				</div>
+				{% endfor %}
+				<input type="hidden" name="question-id" value="{{ question.id }}">
+				<input type="submit" class="btn btn-success" value="Vote">
+			</form>
+		</div>
+		<div class="col-md-6">
+			<canvas id="myChart" width="400"></canvas>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+	var ctx = document.getElementById("myChart");
+	var records_object = {{ vote_records|safe }};
+	var choices_object = {{ choice_texts|safe }}
+	var date_sets = [];
+	var count = 0;
+	var background_colors = [
+	'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+	];
+	var border_colors = [
+	'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+	];
+	for (var index in records_object) {
+		if (records_object.hasOwnProperty(index)) {
+		    var key = Object.keys(records_object)[count];
+		    keys = Object.keys(records_object[key]);
+		    array = keys.map(function (k) { return records_object[key][k]; });
+		    console.log(array)
+		    date_sets[count] = {
+		    	label: choices_object[key],
+				data: array,
+				backgroundColor: background_colors[count],
+				borderColor: border_colors[count],
+				borderWidth: 1	
+		    } 
+		    count = count + 1;
+		}
+	}
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			datasets: date_sets
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:true,
+					}
+				}]
+			}
+		}
+	});
+</script>
+{% endblock %}

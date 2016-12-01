@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+	<div class="row">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Poll</th>
+					<th>Total Votes</th>
+					<th>Published Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for question, vote, question_text_url in compressed %}
+				<tr>
+					<td><a href="poll/{{ question.id }}/{{ question_text_url }}">{{ question.question_text }}</a></td>
+					<td>{{ vote }}</td>
+					<td>{{ question.pub_date }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div class="pagination">
+			<span class="step-links">
+				{% if questions.has_previous %}
+				<a href="?page={{ questions.previous_page_number }}">previous</a>
+				{% endif %}
+				<span class="current">
+					Page {{ questions.number }} of {{ questions.paginator.num_pages }}.
+				</span>
+				{% if questions.has_next %}
+				<a href="?page={{ questions.next_page_number }}">next</a>
+				{% endif %}
+			</span>
+		</div>
+	</div>
+</div>
+{% endblock %}
